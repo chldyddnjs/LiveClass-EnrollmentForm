@@ -37,9 +37,8 @@ export const CourseDetailPage = () => {
   const isLow = remaining > 0 && remaining <= LOW_SEAT_THRESHOLD;
 
   const handleEnroll = (type: EnrollmentType) => {
-    // Step2로 이동하며 선택 정보를 state로 전달
-    navigate("/enroll/step2", {
-      state: { courseId: course!.id, enrollmentType: type },
+    navigate(`/courses/${course!.id}/enroll`, {
+      state: { enrollmentType: type },
     });
   };
 
