@@ -1,7 +1,3 @@
-// ────────────────────────────────────────────────────────────────────────────
-// Course
-// ────────────────────────────────────────────────────────────────────────────
-
 export type CourseCategory = "development" | "design" | "marketing" | "business";
 
 export interface Course {

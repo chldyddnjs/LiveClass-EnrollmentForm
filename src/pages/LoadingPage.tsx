@@ -1,0 +1,8 @@
+export const LoadingPage = () => {
+    return (
+        <div className="flex min-h-screen items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 boder-gray-200 border-t-gray-900">    
+            </div>
+        </div>
+    )
+}
