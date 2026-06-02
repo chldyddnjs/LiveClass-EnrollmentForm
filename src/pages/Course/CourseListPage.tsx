@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useCourses } from "../../hooks/useCourses";
-import { CourseCard } from "../../components/ui/CourseCard";
-import { CategoryFilter } from "../../components/ui/CategoryFilter";
+import { CourseCard } from "./CourseCard";
+import { CategoryFilter } from "./CategoryFilter";
 import { isCategoryValid } from "../../lib/utils";
 
 type CategoryOption = "all" | "development" | "design" | "marketing" | "business";

@@ -10,7 +10,7 @@ import { MOCK_COURSES } from "./data";
 const SIMULATED_DELAY_MS = 600;
 
 // 이미 신청된 강의 ID 추적 (세션 내 유지)
-const enrolledCourseIds = new Set<string>();
+export const enrolledCourseIds = new Set<string>();
 
 export const handlers = [
   // ──────────────────────────────────────────────────────────────
