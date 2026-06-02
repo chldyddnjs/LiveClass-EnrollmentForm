@@ -10,11 +10,12 @@ import { FormField, Input, Textarea } from "../../components/fields/FormField";
 import { ParticipantList } from "../../components/fields/ParticipantList";
 import { formatPrice, formatDateRange, getRemainingSeats } from "../../lib/utils";
 import type { EnrollmentType, Step1Data } from "../../types/enrollment";
+import { useBlocker } from "react-router-dom";
 
 interface Step2FormProps {
   currentType: EnrollmentType;
   resolvedStep1: Step1Data;
-  remaining: number;           // ← 추가
+  remaining: number | null;           // ← 추가
   onSubmit: (data: Step2FormValues) => void;
   onBack: () => void;
   onTypeSwitch: (type: EnrollmentType) => void;
@@ -25,8 +26,7 @@ interface Step2FormProps {
 }
 
 function Step2Form({
-  currentType,
-  remaining,                          // ← 추가
+  currentType,                         // ← 추가
   onSubmit,
   onBack,
   onTypeSwitch,
@@ -63,7 +63,7 @@ function Step2Form({
     mode: "onBlur",
   });
 
-  const { register, handleSubmit, watch, trigger, formState: { errors } } = methods;
+  const { register, handleSubmit, watch, formState: { errors } } = methods;
   const headCount = watch("group.headCount" as never) as unknown as number | undefined;
   const groupErrors = errors as {
     group?: {
@@ -160,30 +160,20 @@ function Step2Form({
                 id="headCount"
                 type="number"
                 min={2}
-                max={remaining}
+                max={10}
                 placeholder={
-                    `2~${remaining}명`
+                    `2~10명`
                 }
                 {...register("group.headCount" as never, {
                     setValueAs: (v) => {
                     const parsed = parseInt(v);
                     return isNaN(parsed) ? undefined : parsed;
                     },
-                    onChange: () => {
-                        trigger("group.headCount" as never); // 입력할 때마다 즉시 검증
-                    },
-                    validate: (value: number) => {
-                    if (!Number.isInteger(value)) return "인원수를 입력해주세요.";
-                    if (value < 2) return "최소 2명이어야 합니다.";
-                    if (value > remaining) return `최대 ${remaining}명까지 가능합니다.
-                                                   잔여석(${remaining}석)을 초과할 수 없습니다.`;
-                    return true;
-                    },
                 })}
                 />
             </FormField>
 
-            {Number.isInteger(headCount) && headCount! >= 2 && headCount! <= remaining && (
+            {Number.isInteger(headCount) && headCount! >= 2 && headCount! <= 10 && (
               <ParticipantList headCount={headCount!} />
             )}
 
@@ -213,9 +203,7 @@ function Step2Form({
   );
 }
 
-// ── 페이지 컴포넌트 ────────────────────────────────────────────────────────────
-
-export function Step2Page() {
+export const Step2Page = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as Step1Data | null;
@@ -237,10 +225,27 @@ export function Step2Page() {
   const { data: course } = useCourse(resolvedStep1?.courseId ?? "");
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingType, setPendingType] = useState<EnrollmentType | null>(null);
-
   const [currentType, setCurrentType] = useState<EnrollmentType>(
     resolvedStep1?.enrollmentType ?? "personal"
   );
+
+  // ── 이탈 방지 ────────────────────────────────────────────────────────────────
+  const hasInput = !!step1; // step1이 있으면 입력 시작한 것으로 간주
+
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      hasInput && currentLocation.pathname !== nextLocation.pathname
+  );
+
+  // 브라우저 닫기 / 새로고침
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasInput) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasInput]);
+  // ──────────────────────────────────────────────────────────────────────────────
 
   if (!resolvedStep1) return null;
 
@@ -295,11 +300,37 @@ export function Step2Page() {
       </header>
 
       <main className="mx-auto max-w-2xl px-4 py-8">
+        {/* 이탈 방지 다이얼로그 */}
+        {blocker.state === "blocked" && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl flex flex-col gap-4">
+              <h3 className="text-base font-semibold text-gray-900">다음 단계로 진행합니다.</h3>
+              <p className="text-sm text-gray-600">
+                현재 페이지를 벗어나도 작성한 내용은 임시 저장됩니다.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => blocker.reset()}
+                  className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+                >
+                  계속 작성
+                </button>
+                <button
+                  onClick={() => blocker.proceed()}
+                  className="flex-1 rounded-xl bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 transition"
+                >
+                  나가기
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <Step2Form
           key={currentType}
           currentType={currentType}
           resolvedStep1={resolvedStep1}
-          remaining={remaining}                 // ← 추가
+          remaining={remaining}
           onSubmit={handleSubmit}
           onBack={() => navigate(-1)}
           onTypeSwitch={requestTypeSwitch}
@@ -311,4 +342,4 @@ export function Step2Page() {
       </main>
     </div>
   );
-}
+};

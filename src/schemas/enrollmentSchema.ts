@@ -58,7 +58,8 @@ const groupStep2Schema = z
       headCount: z
         .number({ error: "인원수를 입력해주세요." })
         .int("인원수는 정수여야 합니다.")
-        .min(2, "단체 신청은 최소 2명이어야 합니다."),
+        .min(2, "단체 신청은 최소 2명이어야 합니다.")
+        .max(10, "단체 신청은 최대 10명 이하여야 합니다."),
       participants: z
         .array(participantSchema)
         .min(1, "참가자 명단을 입력해주세요."),
