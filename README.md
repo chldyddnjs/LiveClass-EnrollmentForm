@@ -1,76 +1,33 @@
-# React + TypeScript + Vite
+# 수강 신청 폼 — LiveClass FE 과제
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+다단계 수강 신청 폼 구현 과제입니다.
+강의 목록 탐색 → 신청 유형 선택 → 신청자 정보 입력 → 확인 및 제출의 3단계 흐름으로 구성됩니다.
 
-Currently, two official plugins are available:
+## 실행 방법
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+\```bash
+npm install
+npm run dev
+\```
 
-## React Compiler
+브라우저 콘솔에서 `[MSW] Mocking enabled.` 확인 후 사용하세요.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 테스트
 
-## Expanding the ESLint configuration
+\```bash
+npm run test:run
+\```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 기술 스택
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+React · TypeScript · Vite · React Hook Form · Zod · Zustand · TanStack Query · Tailwind CSS · MSW · Vitest
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 주요 구현
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-# LiveClass-EnrollmentForm
-# LiveClass-EnrollmentForm
-# LiveClass-EnrollmentForm
+- 3단계 멀티스텝 폼 (강의 선택 → 신청자 정보 → 확인 및 제출)
+- 개인/단체 신청 유형 전환 및 데이터 정합성 처리
+- Zod discriminated union 기반 타입 안전 검증
+- 참가자 이메일 중복 / 잔여석 초과 실시간 검증
+- 임시 저장 (새로고침 후 입력 데이터 복원)
+- 이탈 방지 다이얼로그
+- MSW 기반 Mock API (COURSE_FULL, DUPLICATE_ENROLLMENT 시나리오 포함)
